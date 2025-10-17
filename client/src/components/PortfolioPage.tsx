@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Navigation from "./Navigation";
 import BlogSection from "./BlogSection";
 import GallerySection from "./GallerySection";
@@ -10,6 +10,15 @@ interface PortfolioPageProps {
 }
 
 export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
+  const { scrollYProgress } = useScroll();
+  
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -400]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 180]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.3, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 0.5, 0.8]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -30,35 +39,56 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
         <p>© 2025 Christopher. Built with passion and precision.</p>
       </div>
 
-      {/* Visible greyscale background covering entire page */}
+      {/* Dynamic scroll-based greyscale background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
-        {/* Strong base greyscale gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-200/80 via-neutral-100/60 to-neutral-50/40" />
+        {/* Animated base layer */}
+        <motion.div 
+          style={{ opacity }}
+          className="absolute inset-0 bg-gradient-to-br from-neutral-200/70 via-neutral-100/50 to-neutral-50/30" 
+        />
 
-        {/* Large visible gradient blobs from top to bottom */}
-        <div className="absolute -top-20 left-0 w-[1000px] h-[1000px]">
-          <div className="absolute inset-0 bg-gradient-radial from-neutral-500/40 via-neutral-400/25 to-transparent blur-3xl" />
-        </div>
+        {/* Moving gradient blobs that respond to scroll */}
+        <motion.div 
+          style={{ y: y1, scale }}
+          className="absolute -top-20 left-0 w-[1000px] h-[1000px]"
+        >
+          <div className="absolute inset-0 bg-gradient-radial from-neutral-600/50 via-neutral-500/30 to-transparent blur-3xl" />
+        </motion.div>
 
-        <div className="absolute top-40 right-0 w-[900px] h-[900px]">
-          <div className="absolute inset-0 bg-gradient-radial from-neutral-600/35 via-neutral-500/20 to-transparent blur-3xl" />
-        </div>
+        <motion.div 
+          style={{ y: y2, rotate }}
+          className="absolute top-40 right-0 w-[900px] h-[900px]"
+        >
+          <div className="absolute inset-0 bg-gradient-radial from-neutral-700/45 via-neutral-600/25 to-transparent blur-3xl" />
+        </motion.div>
 
-        <div className="absolute top-1/2 left-1/4 w-[800px] h-[800px]">
-          <div className="absolute inset-0 bg-gradient-radial from-neutral-500/30 via-neutral-400/20 to-transparent blur-3xl" />
-        </div>
+        <motion.div 
+          style={{ y: y3, scale }}
+          className="absolute top-2/3 left-1/3 w-[800px] h-[800px]"
+        >
+          <div className="absolute inset-0 bg-gradient-radial from-neutral-600/40 via-neutral-500/25 to-transparent blur-3xl" />
+        </motion.div>
 
-        {/* Bold geometric shapes */}
-        <div className="absolute top-20 left-20 w-[500px] h-[500px] border-3 border-neutral-500/40 rotate-12" />
+        {/* Rotating geometric shapes */}
+        <motion.div 
+          style={{ y: y1, rotate }}
+          className="absolute top-20 left-20 w-[500px] h-[500px] border-4 border-neutral-600/50"
+        />
         
-        <div className="absolute top-1/3 right-20 w-[400px] h-[400px] border-3 border-neutral-600/40 rounded-full" />
+        <motion.div 
+          style={{ y: y2, rotate: useTransform(scrollYProgress, [0, 1], [0, -180]) }}
+          className="absolute top-1/3 right-20 w-[400px] h-[400px] border-4 border-neutral-700/50 rounded-full"
+        />
 
-        {/* Visible diagonal lines */}
-        <div className="absolute inset-0">
+        {/* Moving diagonal lines */}
+        <motion.div 
+          style={{ y: y1, opacity }}
+          className="absolute inset-0"
+        >
           {[...Array(15)].map((_, i) => (
             <div
               key={i}
-              className="absolute h-0.5 bg-gradient-to-r from-transparent via-neutral-500/35 to-transparent"
+              className="absolute h-1 bg-gradient-to-r from-transparent via-neutral-600/40 to-transparent"
               style={{
                 width: "250%",
                 top: `${i * 6.66}%`,
@@ -67,21 +97,31 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
               }}
             />
           ))}
-        </div>
+        </motion.div>
 
-        {/* Visible grid pattern */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(to right, rgb(115 115 115 / 0.15) 1px, transparent 1px),
-            linear-gradient(to bottom, rgb(115 115 115 / 0.15) 1px, transparent 1px)
-          `,
-          backgroundSize: "80px 80px",
-        }} />
+        {/* Animated grid pattern */}
+        <motion.div 
+          style={{ 
+            y: y2,
+            backgroundImage: `
+              linear-gradient(to right, rgb(115 115 115 / 0.2) 1px, transparent 1px),
+              linear-gradient(to bottom, rgb(115 115 115 / 0.2) 1px, transparent 1px)
+            `,
+            backgroundSize: "80px 80px",
+          }}
+          className="absolute inset-0"
+        />
 
-        {/* Large visible circles */}
-        <div className="absolute top-0 left-1/3 w-[1000px] h-[1000px] border-2 border-neutral-500/30 rounded-full" />
+        {/* Scroll-responsive circles */}
+        <motion.div 
+          style={{ scale, y: y1 }}
+          className="absolute top-0 left-1/3 w-[1000px] h-[1000px] border-3 border-neutral-600/40 rounded-full"
+        />
         
-        <div className="absolute top-1/2 right-1/3 w-[800px] h-[800px] border-3 border-neutral-600/35 rounded-full" />
+        <motion.div 
+          style={{ scale, y: y3 }}
+          className="absolute top-1/2 right-1/3 w-[800px] h-[800px] border-4 border-neutral-700/45 rounded-full"
+        />
       </div>
     </motion.div>
   );
