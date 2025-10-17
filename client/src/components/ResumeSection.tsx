@@ -167,17 +167,22 @@ export default function ResumeSection() {
     const firstCardScore = calculateScore(riggedDealerHand).score;
     let holeCard: Card;
     
-    // Try to get dealer close to winning score with just 2 cards
-    // Push = House wins, so tying player is also a win condition
-    const idealTarget = Math.min(21, finalPlayerScore + 1);
-    const pushTarget = finalPlayerScore; // Tying is also winning
-    
-    // Try to get player+1 first, then try to push
-    let needed = idealTarget - firstCardScore;
-    if (needed < 1 || needed > 11) {
-      // Can't get player+1, try to push instead
-      needed = pushTarget - firstCardScore;
+    // Try to get dealer to a winning/pushing score with hole card
+    // Push = House wins, so >= playerScore is the goal
+    // Pick a random winning target from 17-21 that's >= playerScore
+    const possibleTargets = [];
+    for (let score = 17; score <= 21; score++) {
+      if (score >= finalPlayerScore) {
+        possibleTargets.push(score);
+      }
     }
+    
+    // Randomly pick one of the valid targets
+    const randomTarget = possibleTargets.length > 0 
+      ? possibleTargets[Math.floor(Math.random() * possibleTargets.length)]
+      : 21;
+    
+    const needed = randomTarget - firstCardScore;
     
     if (needed >= 1 && needed <= 11) {
       if (needed === 11 || needed === 1) {
@@ -241,41 +246,29 @@ export default function ResumeSection() {
       // PUSH = HOUSE WINS, so tying player is also a valid win condition
       let perfectCard: Card | null = null;
       
-      // Target: Get dealer to beat OR tie player with score between 17-21
-      // Priority 1: Try to get exactly playerScore + 1 (beat by 1)
-      const idealTarget = Math.min(21, finalPlayerScore + 1);
-      const idealNeeded = idealTarget - currentScore;
-      
-      if (idealNeeded >= 1 && idealNeeded <= 11) {
-        if (idealNeeded === 11 || idealNeeded === 1) {
-          // Use Ace (always numValue 11, calculateScore will adjust)
-          perfectCard = { suit: suits[0], value: "A", numValue: 11 };
-        } else if (idealNeeded <= 10) {
-          const matchVal = values.find(v => v.numValue === idealNeeded);
-          if (matchVal) {
-            perfectCard = { suit: suits[0], value: matchVal.value, numValue: matchVal.numValue };
-          }
+      // Build list of all possible winning scores from 17-21 that beat/tie player
+      const possibleWinningScores = [];
+      for (let score = 17; score <= 21; score++) {
+        if (score >= finalPlayerScore) {
+          possibleWinningScores.push(score);
         }
       }
       
-      // Priority 2: Try any winning score between 17-21 (including push)
-      if (!perfectCard) {
-        for (let target = 21; target >= 17; target--) {
-          // Pushes count as wins, so >= instead of >
-          if (target >= finalPlayerScore) {
-            const needed = target - currentScore;
-            if (needed >= 1 && needed <= 11) {
-              if (needed === 11 || needed === 1) {
-                // Use Ace (always numValue 11, calculateScore will adjust)
-                perfectCard = { suit: suits[0], value: "A", numValue: 11 };
-                break;
-              } else if (needed <= 10) {
-                const matchVal = values.find(v => v.numValue === needed);
-                if (matchVal) {
-                  perfectCard = { suit: suits[0], value: matchVal.value, numValue: matchVal.numValue };
-                  break;
-                }
-              }
+      // Shuffle and try each possible winning score
+      const shuffledScores = possibleWinningScores.sort(() => Math.random() - 0.5);
+      
+      for (const targetScore of shuffledScores) {
+        const needed = targetScore - currentScore;
+        if (needed >= 1 && needed <= 11) {
+          if (needed === 11 || needed === 1) {
+            // Use Ace (always numValue 11, calculateScore will adjust)
+            perfectCard = { suit: suits[0], value: "A", numValue: 11 };
+            break;
+          } else if (needed <= 10) {
+            const matchVal = values.find(v => v.numValue === needed);
+            if (matchVal) {
+              perfectCard = { suit: suits[0], value: matchVal.value, numValue: matchVal.numValue };
+              break;
             }
           }
         }
