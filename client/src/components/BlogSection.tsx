@@ -4,33 +4,17 @@ import { useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
-
-//todo: remove mock functionality
-const mockPosts = [
-  {
-    id: 1,
-    title: "The Art of the Pivot",
-    date: "March 15, 2025",
-    excerpt: "Sometimes the best move is knowing when to change direction. Lessons from the poker table applied to startups.",
-  },
-  {
-    id: 2,
-    title: "Why I Love Bad Beats",
-    date: "March 10, 2025",
-    excerpt: "Every bad beat is a masterclass in probability, psychology, and resilience. Here's what they've taught me.",
-  },
-  {
-    id: 3,
-    title: "Learning in Public",
-    date: "March 5, 2025",
-    excerpt: "Sharing your journey—wins and losses—creates connection and accelerates growth. Here's why I believe in it.",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import type { BlogPost } from "@shared/schema";
 
 export default function BlogSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const [expandedPost, setExpandedPost] = useState<number | null>(null);
+  const [expandedPost, setExpandedPost] = useState<string | null>(null);
+
+  const { data: posts = [], isLoading } = useQuery<BlogPost[]>({
+    queryKey: ["/api/blog-posts"],
+  });
 
   return (
     <section
@@ -48,7 +32,10 @@ export default function BlogSection() {
         </motion.h2>
 
         <div className="space-y-6">
-          {mockPosts.map((post, index) => (
+          {isLoading && (
+            <div className="text-center text-muted-foreground">Loading posts...</div>
+          )}
+          {posts.map((post, index) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, x: -50 }}
@@ -105,7 +92,7 @@ export default function BlogSection() {
                     className="mt-4 pt-4 border-t text-muted-foreground"
                   >
                     <p className="leading-relaxed">
-                      Full blog post content would go here. This is a placeholder for the actual article content.
+                      {post.content || "Full blog post content would go here. This is a placeholder for the actual article content."}
                     </p>
                   </motion.div>
                 )}
