@@ -323,7 +323,7 @@ export default function ResumeSection() {
                 <CardTitle className="text-2xl">Locked Content</CardTitle>
               </div>
               <p className="text-muted-foreground text-sm mb-4">
-                Beat the dealer at Blackjack to unlock the resume
+                Beat the dealer at Blackjack to unlock Christopher_Ichiho_Resume.pdf
               </p>
               <div className="text-left max-w-md mx-auto bg-muted/30 rounded-lg p-3">
                 <p className="text-xs font-semibold text-foreground mb-2">Rules:</p>
