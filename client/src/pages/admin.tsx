@@ -40,7 +40,7 @@ export default function AdminPage() {
 
   // Blog post mutations
   const createPostMutation = useMutation({
-    mutationFn: (data: InsertBlogPost) => apiRequest("/api/blog-posts", "POST", data),
+    mutationFn: (data: InsertBlogPost) => apiRequest("POST", "/api/blog-posts", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
       postForm.reset();
@@ -57,7 +57,7 @@ export default function AdminPage() {
 
   const updatePostMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<InsertBlogPost> }) =>
-      apiRequest(`/api/blog-posts/${id}`, "PATCH", data),
+      apiRequest("PATCH", `/api/blog-posts/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
       setEditingPostId(null);
@@ -74,7 +74,7 @@ export default function AdminPage() {
   });
 
   const deletePostMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/blog-posts/${id}`, "DELETE"),
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/blog-posts/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blog-posts"] });
       toast({ title: "Blog post deleted successfully!" });
@@ -90,7 +90,7 @@ export default function AdminPage() {
 
   // Gallery photo mutations
   const createPhotoMutation = useMutation({
-    mutationFn: (data: InsertGalleryPhoto) => apiRequest("/api/gallery-photos", "POST", data),
+    mutationFn: (data: InsertGalleryPhoto) => apiRequest("POST", "/api/gallery-photos", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/gallery-photos"] });
       photoForm.reset();
@@ -107,7 +107,7 @@ export default function AdminPage() {
 
   const updatePhotoMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<InsertGalleryPhoto> }) =>
-      apiRequest(`/api/gallery-photos/${id}`, "PATCH", data),
+      apiRequest("PATCH", `/api/gallery-photos/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/gallery-photos"] });
       setEditingPhotoId(null);
@@ -124,7 +124,7 @@ export default function AdminPage() {
   });
 
   const deletePhotoMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/gallery-photos/${id}`, "DELETE"),
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/gallery-photos/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/gallery-photos"] });
       toast({ title: "Photo deleted successfully!" });

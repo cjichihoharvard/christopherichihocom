@@ -29,6 +29,11 @@ export const blogPosts = pgTable("blog_posts", {
 export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
   id: true,
   createdAt: true,
+}).extend({
+  title: z.string().min(1, "Title is required"),
+  date: z.string().min(1, "Date is required"),
+  excerpt: z.string().min(1, "Excerpt is required"),
+  content: z.string().optional(),
 });
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
@@ -44,6 +49,9 @@ export const galleryPhotos = pgTable("gallery_photos", {
 export const insertGalleryPhotoSchema = createInsertSchema(galleryPhotos).omit({
   id: true,
   createdAt: true,
+}).extend({
+  src: z.string().min(1, "Image URL is required"),
+  caption: z.string().min(1, "Caption is required"),
 });
 
 export type InsertGalleryPhoto = z.infer<typeof insertGalleryPhotoSchema>;
