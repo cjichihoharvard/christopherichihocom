@@ -12,6 +12,15 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
       className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-8"
     >
       <div className="text-center space-y-8 max-w-2xl">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="text-2xl font-mono text-white mb-4"
+        >
+          Christopher James Ichiho
+        </motion.div>
+        
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
