@@ -144,52 +144,64 @@ export default function ResumeSection() {
     const finalPlayerResult = calculateScore(playerHand);
     const finalPlayerScore = finalPlayerResult.score;
     
-    // Dealer draws until they beat the player (must hit on soft 17)
+    // Dealer draws until they reach hard 17 or more (must hit on soft 17)
     let dealerDrawInterval = setInterval(() => {
       setDealerHand(current => {
         const currentResult = calculateScore(current);
         const currentScore = currentResult.score;
         
-        // Dealer must hit on soft 17
+        // Dealer must hit on soft 17, must stand on hard 17+
         const mustHit = currentScore < 17 || (currentScore === 17 && currentResult.isSoft);
         
-        // Dealer beats player and doesn't need to hit
-        if (currentScore > finalPlayerScore && currentScore <= 21 && !mustHit) {
+        // Dealer must stand on hard 17+
+        if (!mustHit) {
           clearInterval(dealerDrawInterval);
           setGameState("game-over");
-          setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
           setDealerScore(currentScore);
+          
+          if (currentScore > 21) {
+            setResultMessage(`Dealer busts with ${currentScore}! Wait... you still lose somehow! 🎰`);
+          } else if (currentScore > finalPlayerScore) {
+            setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
+          } else if (currentScore === finalPlayerScore) {
+            setResultMessage(`Push at ${currentScore}... but dealer wins anyway! 😏`);
+          } else {
+            setResultMessage(`Dealer has ${currentScore}, you have ${finalPlayerScore}... dealer wins! (rigged!) 🃏`);
+          }
           return current;
         }
         
-        // Dealer would stand (hard 17+) but hasn't beat player yet - RIGGED!
-        if (!mustHit && currentScore <= finalPlayerScore) {
-          // Rigged: Give dealer a perfect card to beat player without busting
-          const needed = finalPlayerScore - currentScore + 1;
-          const perfectValue = Math.min(needed, 11);
-          let perfectCard: Card;
+        // Dealer must hit - RIGGED to ensure dealer wins
+        let newCard: Card;
+        
+        // Calculate what the dealer needs
+        const needed = finalPlayerScore - currentScore;
+        
+        // If dealer would reach hard 17+ with this card, make sure it beats player
+        if (currentScore >= 11 && !currentResult.isSoft) {
+          // Dealer is close to 17, give them a card that gets to 18-21 to beat player
+          const targetScore = Math.max(finalPlayerScore + 1, 18);
+          const perfectValue = Math.min(targetScore - currentScore, 11);
           
-          if (perfectValue === 11 || perfectValue === 1) {
-            perfectCard = { suit: suits[0], value: "A", numValue: perfectValue };
+          if (perfectValue >= 1 && perfectValue <= 11 && currentScore + perfectValue <= 21 && currentScore + perfectValue > finalPlayerScore) {
+            // Give perfect card to win
+            if (perfectValue === 11) {
+              newCard = { suit: suits[0], value: "A", numValue: 11 };
+            } else if (perfectValue === 1) {
+              newCard = { suit: suits[0], value: "A", numValue: 1 };
+            } else {
+              const matchingValue = values.find(v => v.numValue === perfectValue);
+              newCard = matchingValue 
+                ? { suit: suits[0], value: matchingValue.value, numValue: matchingValue.numValue }
+                : getRandomCard();
+            }
           } else {
-            const matchingValue = values.find(v => v.numValue === perfectValue);
-            perfectCard = matchingValue 
-              ? { suit: suits[0], value: matchingValue.value, numValue: matchingValue.numValue }
-              : { suit: suits[0], value: Math.min(perfectValue, 10).toString(), numValue: Math.min(perfectValue, 10) };
+            newCard = getRandomCard();
           }
-          
-          const newHand = [...current, perfectCard];
-          const newResult = calculateScore(newHand);
-          setDealerScore(newResult.score);
-          
-          clearInterval(dealerDrawInterval);
-          setGameState("game-over");
-          setResultMessage(`Dealer wins ${newResult.score} to ${finalPlayerScore}!`);
-          return newHand;
+        } else {
+          newCard = getRandomCard();
         }
         
-        // Must hit - keep drawing
-        const newCard = getRandomCard();
         const newHand = [...current, newCard];
         const newResult = calculateScore(newHand);
         setDealerScore(newResult.score);
