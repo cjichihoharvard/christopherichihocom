@@ -3,6 +3,9 @@ import Navigation from "./Navigation";
 import AboutSection from "./AboutSection";
 import JourneyTimeline from "./JourneyTimeline";
 import ProjectsGrid from "./ProjectsGrid";
+import BlogSection from "./BlogSection";
+import GallerySection from "./GallerySection";
+import PokerSection from "./PokerSection";
 import PhilosophySection from "./PhilosophySection";
 import ContactSection from "./ContactSection";
 
@@ -24,6 +27,9 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
         <AboutSection />
         <JourneyTimeline />
         <ProjectsGrid />
+        <BlogSection />
+        <GallerySection />
+        <PokerSection />
         <PhilosophySection />
         <ContactSection />
       </div>
