@@ -44,6 +44,22 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           <p>Harvard University (Grad).</p>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="font-mono text-sm text-white leading-relaxed max-w-3xl pt-4"
+        >
+          <p>
+            I like to think life's a mix of strategy, luck, and a little bit of bluffing. 
+            I've navigated poker tables, golf courses, and startup pitches—with mixed results. 
+            When I'm not chasing PRs in the gym, I'm chasing hope with the Lakers, Dodgers, 
+            and Ducks, while tracking the PGA Tour leaderboard. I love learning new things, 
+            meeting curious people, and finding humor in the chaos—because that's where 
+            life's best stories begin.
+          </p>
+        </motion.div>
+
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
