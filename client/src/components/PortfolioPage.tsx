@@ -4,6 +4,7 @@ import BlogSection from "./BlogSection";
 import GallerySection from "./GallerySection";
 import PokerSection from "./PokerSection";
 import ContactSection from "./ContactSection";
+import ResumeSection from "./ResumeSection";
 
 interface PortfolioPageProps {
   onHomeClick?: () => void;
@@ -30,6 +31,7 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
 
       <div className="relative pt-20">
         <ContactSection />
+        <ResumeSection />
         <BlogSection />
         <GallerySection />
         <PokerSection />
