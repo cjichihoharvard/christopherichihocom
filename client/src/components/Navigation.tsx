@@ -40,6 +40,16 @@ export default function Navigation({ onHomeClick }: NavigationProps) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={onHomeClick}
+          className="text-xl font-heading font-semibold text-foreground hover:text-primary transition-colors"
+          data-testid="button-home"
+        >
+          Christopher Ichiho
+        </motion.button>
+
         <div className="flex gap-8">
           {navItems.map((item, index) => (
             <motion.button
@@ -56,16 +66,6 @@ export default function Navigation({ onHomeClick }: NavigationProps) {
             </motion.button>
           ))}
         </div>
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          onClick={onHomeClick}
-          className="text-xl font-heading font-semibold text-foreground hover:text-primary transition-colors"
-          data-testid="button-home"
-        >
-          Christopher Ichiho
-        </motion.button>
       </div>
     </motion.nav>
   );
