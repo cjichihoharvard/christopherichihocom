@@ -157,100 +157,110 @@ export default function ResumeSection() {
     
     setGameState("dealer-turn");
     
-    // Dealer reveals hidden card and draws
-    const newDealerHand = [...dealerHand];
-    newDealerHand.push(getRandomCard()); // Second card
-    setDealerHand(newDealerHand);
-    
     const finalPlayerResult = calculateScore(playerHand);
     const finalPlayerScore = finalPlayerResult.score;
     
-    // Dealer draws until they reach hard 17 or more (must hit on soft 17)
-    let dealerDrawInterval = setInterval(() => {
-      setDealerHand(current => {
-        const currentResult = calculateScore(current);
-        const currentScore = currentResult.score;
+    // Build a rigged dealer hand that beats the player
+    const riggedDealerHand = [...dealerHand];
+    
+    // Add second card (revealing hole card)
+    riggedDealerHand.push(getRandomCard());
+    setDealerHand(riggedDealerHand);
+    
+    let currentHand = [...riggedDealerHand];
+    let drawCount = 0;
+    
+    // Dealer draws until they beat player or reach hard 17+
+    const dealerDrawInterval = setInterval(() => {
+      const currentResult = calculateScore(currentHand);
+      const currentScore = currentResult.score;
+      
+      // Check if dealer must hit (less than 17 OR soft 17)
+      const mustHit = currentScore < 17 || (currentScore === 17 && currentResult.isSoft);
+      
+      // Check if dealer has won
+      const hasWon = currentScore > finalPlayerScore && currentScore <= 21;
+      const hasTied = currentScore === finalPlayerScore && currentScore === 21;
+      
+      if ((hasWon || hasTied) && !mustHit) {
+        // Dealer wins legitimately!
+        clearInterval(dealerDrawInterval);
+        setDealerHand(currentHand);
+        setDealerScore(currentScore);
+        setGameState("game-over");
         
-        // Dealer must hit on soft 17, must stand on hard 17+
-        const mustHit = currentScore < 17 || (currentScore === 17 && currentResult.isSoft);
-        
-        // Dealer must stand on hard 17+ (17-21)
-        if (!mustHit) {
-          clearInterval(dealerDrawInterval);
-          setGameState("game-over");
-          setDealerScore(currentScore);
-          
-          // REAL blackjack outcomes only - dealer must beat player legitimately
-          if (currentScore > finalPlayerScore) {
-            setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
-          } else if (currentScore === finalPlayerScore) {
-            // Push - dealer wins in this rigged game
-            setResultMessage(`Push at ${currentScore}. House wins ties!`);
-          } else {
-            // This should NEVER happen with proper rigging
-            setResultMessage(`ERROR: Dealer has ${currentScore}, you have ${finalPlayerScore}`);
-          }
-          return current;
+        if (currentScore > finalPlayerScore) {
+          setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
+        } else {
+          setResultMessage(`Push at ${currentScore}. House wins ties!`);
         }
-        
-        // Dealer must hit - RIGGED to get perfect card to beat or tie player within 17-21
-        let newCard: Card | undefined;
-        
-        // If player has 21, dealer must get exactly 21 to push (and win the push)
-        // If player has less, dealer must get higher than player but ≤21
-        const targetScore = finalPlayerScore === 21 ? 21 : Math.min(21, finalPlayerScore + 1);
-        
-        // Try to hit the exact target score first
-        const neededValue = targetScore - currentScore;
-        
-        if (neededValue >= 1 && neededValue <= 11) {
-          // We can reach target with a single card
-          if (neededValue === 11) {
-            newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: 11 };
-          } else if (neededValue === 1) {
-            newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: 1 };
-          } else if (neededValue <= 10) {
-            const matchingValue = values.find(v => v.numValue === neededValue);
-            if (matchingValue) {
-              newCard = { suit: suits[Math.floor(Math.random() * 4)], value: matchingValue.value, numValue: matchingValue.numValue };
-            }
+        return;
+      }
+      
+      // Safety check - prevent infinite loop
+      if (drawCount > 10) {
+        clearInterval(dealerDrawInterval);
+        setDealerHand(currentHand);
+        setDealerScore(currentScore);
+        setGameState("game-over");
+        setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}! (House always wins)`);
+        return;
+      }
+      
+      // RIGGED: Calculate the perfect card to give dealer
+      let perfectCard: Card | null = null;
+      
+      // Target: Get dealer to beat player with score between 17-21
+      // Priority 1: Try to get exactly playerScore + 1 (or 21 if player has 21)
+      const idealTarget = finalPlayerScore === 21 ? 21 : Math.min(21, finalPlayerScore + 1);
+      const idealNeeded = idealTarget - currentScore;
+      
+      if (idealNeeded >= 1 && idealNeeded <= 11) {
+        if (idealNeeded === 11) {
+          perfectCard = { suit: suits[0], value: "A", numValue: 11 };
+        } else if (idealNeeded === 1) {
+          perfectCard = { suit: suits[0], value: "A", numValue: 1 };
+        } else if (idealNeeded <= 10) {
+          const matchVal = values.find(v => v.numValue === idealNeeded);
+          if (matchVal) {
+            perfectCard = { suit: suits[0], value: matchVal.value, numValue: matchVal.numValue };
           }
         }
-        
-        // If we can't hit exact target, try to get into 17-21 range that beats player
-        if (!newCard) {
-          // Try any score from 21 down to max(17, playerScore+1)
-          const minAcceptable = Math.max(17, finalPlayerScore + 1);
-          for (let tryScore = 21; tryScore >= minAcceptable; tryScore--) {
-            const tryValue = tryScore - currentScore;
-            if (tryValue >= 1 && tryValue <= 11) {
-              if (tryValue === 11 || tryValue === 1) {
-                newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: tryValue };
+      }
+      
+      // Priority 2: Try any winning score between 17-21
+      if (!perfectCard) {
+        for (let target = 21; target >= 17; target--) {
+          if (target > finalPlayerScore || (target === 21 && finalPlayerScore === 21)) {
+            const needed = target - currentScore;
+            if (needed >= 1 && needed <= 11) {
+              if (needed === 11 || needed === 1) {
+                perfectCard = { suit: suits[0], value: "A", numValue: needed };
                 break;
-              } else if (tryValue <= 10) {
-                const matchingValue = values.find(v => v.numValue === tryValue);
-                if (matchingValue) {
-                  newCard = { suit: suits[Math.floor(Math.random() * 4)], value: matchingValue.value, numValue: matchingValue.numValue };
+              } else if (needed <= 10) {
+                const matchVal = values.find(v => v.numValue === needed);
+                if (matchVal) {
+                  perfectCard = { suit: suits[0], value: matchVal.value, numValue: matchVal.numValue };
                   break;
                 }
               }
             }
           }
         }
-        
-        // If still no card found (shouldn't happen), give a low card to keep drawing
-        if (!newCard) {
-          const lowCard = values.find(v => v.numValue <= 4);
-          newCard = lowCard 
-            ? { suit: suits[0], value: lowCard.value, numValue: lowCard.numValue }
-            : getRandomCard();
-        }
-        
-        const newHand = [...current, newCard];
-        const newResult = calculateScore(newHand);
-        setDealerScore(newResult.score);
-        return newHand;
-      });
+      }
+      
+      // Priority 3: Give a small card to keep drawing (2-4)
+      if (!perfectCard) {
+        const smallCards = values.filter(v => v.numValue >= 2 && v.numValue <= 4);
+        const smallCard = smallCards[Math.floor(Math.random() * smallCards.length)];
+        perfectCard = { suit: suits[0], value: smallCard.value, numValue: smallCard.numValue };
+      }
+      
+      // Add the rigged card
+      currentHand = [...currentHand, perfectCard];
+      setDealerHand([...currentHand]);
+      setDealerScore(calculateScore(currentHand).score);
+      drawCount++;
     }, 800);
   };
 
