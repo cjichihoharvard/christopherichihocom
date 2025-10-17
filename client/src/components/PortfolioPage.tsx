@@ -15,7 +15,7 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1.2 }}
-      className="relative bg-gradient-to-b from-background via-background to-accent/5"
+      className="relative"
     >
       <Navigation onHomeClick={onHomeClick} />
 
