@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
-import { useRef, useState } from "react";
-import { X } from "lucide-react";
+import { useRef } from "react";
 import profileImage from "@assets/generated_images/Professional_portrait_headshot_photo_1f736993.png";
 import dashboardImage from "@assets/generated_images/Web_dashboard_project_screenshot_f3bc0d09.png";
 import mobileAppImage from "@assets/generated_images/Mobile_app_project_mockup_195fc667.png";
@@ -20,7 +19,6 @@ const mockPhotos = [
 export default function GallerySection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const [selectedPhoto, setSelectedPhoto] = useState<typeof mockPhotos[0] | null>(null);
 
   return (
     <section
@@ -55,8 +53,7 @@ export default function GallerySection() {
                 z: 50,
                 transition: { duration: 0.3 }
               }}
-              onClick={() => setSelectedPhoto(photo)}
-              className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group"
+              className="relative aspect-square overflow-hidden rounded-lg group"
               style={{ transformStyle: "preserve-3d" }}
               data-testid={`gallery-photo-${photo.id}`}
             >
@@ -78,32 +75,6 @@ export default function GallerySection() {
             </motion.div>
           ))}
         </div>
-
-        {selectedPhoto && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onClick={() => setSelectedPhoto(null)}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-8"
-            data-testid="gallery-modal"
-          >
-            <button
-              onClick={() => setSelectedPhoto(null)}
-              className="absolute top-8 right-8 text-white hover:text-primary transition-colors"
-              data-testid="button-close-modal"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <div className="max-w-4xl w-full">
-              <img
-                src={selectedPhoto.src}
-                alt={selectedPhoto.caption}
-                className="w-full h-auto rounded-lg"
-              />
-              <p className="text-white text-center mt-4 text-lg">{selectedPhoto.caption}</p>
-            </div>
-          </motion.div>
-        )}
       </div>
     </section>
   );
