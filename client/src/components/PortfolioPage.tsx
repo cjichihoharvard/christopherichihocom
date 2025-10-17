@@ -1,12 +1,8 @@
 import { motion } from "framer-motion";
 import Navigation from "./Navigation";
-import AboutSection from "./AboutSection";
-import JourneyTimeline from "./JourneyTimeline";
-import ProjectsGrid from "./ProjectsGrid";
 import BlogSection from "./BlogSection";
 import GallerySection from "./GallerySection";
 import PokerSection from "./PokerSection";
-import PhilosophySection from "./PhilosophySection";
 import ContactSection from "./ContactSection";
 
 interface PortfolioPageProps {
@@ -23,14 +19,10 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
     >
       <Navigation onHomeClick={onHomeClick} />
 
-      <div className="relative">
-        <AboutSection />
-        <JourneyTimeline />
-        <ProjectsGrid />
+      <div className="relative pt-20">
         <BlogSection />
         <GallerySection />
         <PokerSection />
-        <PhilosophySection />
         <ContactSection />
       </div>
 
