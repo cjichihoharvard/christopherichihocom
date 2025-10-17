@@ -51,17 +51,32 @@ export default function BlogSection() {
           {mockPosts.map((post, index) => (
             <motion.div
               key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              initial={{ opacity: 0, x: -50 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.15,
+                type: "spring",
+                stiffness: 100
+              }}
+              whileHover={{ scale: 1.02, x: 10 }}
               data-testid={`blog-post-${post.id}`}
             >
-              <Card className="p-6 hover-elevate">
-                <div className="flex items-start justify-between gap-4">
+              <Card className="p-6 hover-elevate relative overflow-hidden">
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "0%" }}
+                  transition={{ duration: 0.3 }}
+                />
+                <div className="flex items-start justify-between gap-4 relative z-10">
                   <div className="flex-1">
-                    <h3 className="text-2xl font-semibold text-foreground mb-2">
+                    <motion.h3 
+                      className="text-2xl font-semibold text-foreground mb-2"
+                      whileHover={{ x: 5 }}
+                    >
                       {post.title}
-                    </h3>
+                    </motion.h3>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                       <Calendar className="w-4 h-4" />
                       <span>{post.date}</span>
@@ -70,19 +85,23 @@ export default function BlogSection() {
                       {post.excerpt}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                    data-testid={`button-read-post-${post.id}`}
-                  >
-                    {expandedPost === post.id ? "Close" : "Read"}
-                  </Button>
+                  <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.3 }}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                      data-testid={`button-read-post-${post.id}`}
+                    >
+                      {expandedPost === post.id ? "Close" : "Read"}
+                    </Button>
+                  </motion.div>
                 </div>
                 {expandedPost === post.id && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.4 }}
                     className="mt-4 pt-4 border-t text-muted-foreground"
                   >
                     <p className="leading-relaxed">

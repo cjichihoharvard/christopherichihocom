@@ -41,21 +41,40 @@ export default function GallerySection() {
           {mockPhotos.map((photo, index) => (
             <motion.div
               key={photo.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
+              animate={isInView ? { opacity: 1, scale: 1, rotateY: 0 } : {}}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.1,
+                type: "spring",
+                stiffness: 100
+              }}
+              whileHover={{ 
+                scale: 1.05, 
+                rotateY: 5,
+                z: 50,
+                transition: { duration: 0.3 }
+              }}
               onClick={() => setSelectedPhoto(photo)}
               className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group"
+              style={{ transformStyle: "preserve-3d" }}
               data-testid={`gallery-photo-${photo.id}`}
             >
-              <img
+              <motion.img
                 src={photo.src}
                 alt={photo.caption}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover"
+                whileHover={{ scale: 1.15 }}
+                transition={{ duration: 0.5 }}
               />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex items-end p-4"
+                initial={{ opacity: 0, y: 20 }}
+                whileHover={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
                 <p className="text-white font-medium">{photo.caption}</p>
-              </div>
+              </motion.div>
             </motion.div>
           ))}
         </div>

@@ -73,74 +73,110 @@ export default function PokerSection() {
           A collection of memorable hands—both triumphs and disasters
         </motion.p>
 
-        <div className="flex justify-center gap-4 mb-12">
-          <Button
-            variant={filter === "all" ? "default" : "outline"}
-            onClick={() => setFilter("all")}
-            data-testid="filter-all"
-          >
-            All Hands
-          </Button>
-          <Button
-            variant={filter === "won" ? "default" : "outline"}
-            onClick={() => setFilter("won")}
-            data-testid="filter-won"
-          >
-            Wins
-          </Button>
-          <Button
-            variant={filter === "lost" ? "default" : "outline"}
-            onClick={() => setFilter("lost")}
-            data-testid="filter-lost"
-          >
-            Bad Beats
-          </Button>
-        </div>
+        <motion.div 
+          className="flex justify-center gap-4 mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.3 }}
+        >
+          {[
+            { value: "all", label: "All Hands", testId: "filter-all" },
+            { value: "won", label: "Wins", testId: "filter-won" },
+            { value: "lost", label: "Bad Beats", testId: "filter-lost" },
+          ].map((item) => (
+            <motion.div
+              key={item.value}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                variant={filter === item.value ? "default" : "outline"}
+                onClick={() => setFilter(item.value as any)}
+                data-testid={item.testId}
+              >
+                {item.label}
+              </Button>
+            </motion.div>
+          ))}
+        </motion.div>
 
         <div className="space-y-6">
           {filteredHands.map((hand, index) => (
             <motion.div
               key={hand.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              initial={{ opacity: 0, rotateX: -20, y: 50 }}
+              animate={isInView ? { opacity: 1, rotateX: 0, y: 0 } : {}}
+              transition={{ 
+                duration: 0.5, 
+                delay: index * 0.15,
+                type: "spring",
+                stiffness: 80
+              }}
+              whileHover={{ scale: 1.03, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+              style={{ transformStyle: "preserve-3d" }}
               data-testid={`poker-hand-${hand.id}`}
             >
-              <Card className="p-6 hover-elevate">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
+              <Card className="p-6 hover-elevate relative overflow-hidden">
+                <motion.div
+                  className={`absolute inset-0 ${hand.result === "won" ? "bg-primary/5" : "bg-destructive/5"}`}
+                  initial={{ opacity: 0, scale: 0 }}
+                  whileHover={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                />
+                <div className="flex items-start justify-between gap-4 flex-wrap relative z-10">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-3">
-                      <h3 className="text-2xl font-mono font-bold text-foreground">
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      <motion.h3 
+                        className="text-2xl font-mono font-bold text-foreground"
+                        whileHover={{ scale: 1.1, color: "hsl(var(--primary))" }}
+                      >
                         {hand.hand}
-                      </h3>
-                      <Badge variant={hand.result === "won" ? "default" : "destructive"}>
-                        {hand.result === "won" ? (
-                          <><TrendingUp className="w-3 h-3 mr-1" /> Win</>
-                        ) : (
-                          <><TrendingDown className="w-3 h-3 mr-1" /> Loss</>
-                        )}
-                      </Badge>
+                      </motion.h3>
+                      <motion.div
+                        whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <Badge variant={hand.result === "won" ? "default" : "destructive"}>
+                          {hand.result === "won" ? (
+                            <><TrendingUp className="w-3 h-3 mr-1" /> Win</>
+                          ) : (
+                            <><TrendingDown className="w-3 h-3 mr-1" /> Loss</>
+                          )}
+                        </Badge>
+                      </motion.div>
                       <span className="text-sm text-muted-foreground">{hand.date}</span>
                     </div>
                     
                     <div className="space-y-2 text-sm">
-                      <p className="text-muted-foreground">
+                      <motion.p 
+                        className="text-muted-foreground"
+                        whileHover={{ x: 5 }}
+                      >
                         <span className="font-semibold text-foreground">Situation:</span> {hand.situation}
-                      </p>
-                      <p className="text-muted-foreground">
+                      </motion.p>
+                      <motion.p 
+                        className="text-muted-foreground"
+                        whileHover={{ x: 5 }}
+                      >
                         <span className="font-semibold text-foreground">Opponent:</span>{" "}
                         <span className="font-mono">{hand.opponent}</span>
-                      </p>
-                      <p className="text-muted-foreground">
+                      </motion.p>
+                      <motion.p 
+                        className="text-muted-foreground"
+                        whileHover={{ x: 5 }}
+                      >
                         <span className="font-semibold text-foreground">Board:</span>{" "}
                         <span className="font-mono">{hand.board}</span>
-                      </p>
+                      </motion.p>
                     </div>
                   </div>
                   
-                  <div className="text-right">
+                  <motion.div 
+                    className="text-right"
+                    whileHover={{ scale: 1.2, rotate: 5 }}
+                  >
                     <p className="text-2xl font-bold text-foreground">{hand.stakes}</p>
-                  </div>
+                  </motion.div>
                 </div>
               </Card>
             </motion.div>
