@@ -163,36 +163,64 @@ export default function ResumeSection() {
     // Build a rigged dealer hand that beats the player
     const riggedDealerHand = [...dealerHand];
     
-    // Add second card (revealing hole card)
-    riggedDealerHand.push(getRandomCard());
+    // RIGGED: Give dealer a strategic hole card
+    const firstCardScore = calculateScore(riggedDealerHand).score;
+    let holeCard: Card;
+    
+    // Try to get dealer close to winning score with just 2 cards
+    // Push = House wins, so tying player is also a win condition
+    const idealTarget = Math.min(21, finalPlayerScore + 1);
+    const pushTarget = finalPlayerScore; // Tying is also winning
+    
+    // Try to get player+1 first, then try to push
+    let needed = idealTarget - firstCardScore;
+    if (needed < 1 || needed > 11) {
+      // Can't get player+1, try to push instead
+      needed = pushTarget - firstCardScore;
+    }
+    
+    if (needed >= 1 && needed <= 11) {
+      if (needed === 11 || needed === 1) {
+        holeCard = { suit: suits[0], value: "A", numValue: 11 };
+      } else {
+        const matchVal = values.find(v => v.numValue === needed);
+        holeCard = matchVal ? { suit: suits[0], value: matchVal.value, numValue: matchVal.numValue } : getRandomCard();
+      }
+    } else {
+      // Can't get perfect score with 2 cards, give a safe mid card
+      holeCard = { suit: suits[0], value: "5", numValue: 5 };
+    }
+    
+    riggedDealerHand.push(holeCard);
     setDealerHand(riggedDealerHand);
     
     let currentHand = [...riggedDealerHand];
     let drawCount = 0;
     
-    // Dealer draws until they beat player or reach hard 17+
+    // Dealer draws following REAL blackjack rules
     const dealerDrawInterval = setInterval(() => {
       const currentResult = calculateScore(currentHand);
       const currentScore = currentResult.score;
       
-      // Check if dealer must hit (less than 17 OR soft 17)
+      // REAL BLACKJACK RULES: Dealer must hit soft 17, stand on hard 17+
       const mustHit = currentScore < 17 || (currentScore === 17 && currentResult.isSoft);
+      const mustStand = !mustHit; // Stand on hard 17+ 
       
-      // Check if dealer has won
-      const hasWon = currentScore > finalPlayerScore && currentScore <= 21;
-      const hasTied = currentScore === finalPlayerScore && currentScore === 21;
-      
-      if ((hasWon || hasTied) && !mustHit) {
-        // Dealer wins legitimately!
+      // If dealer must stand, check final result
+      if (mustStand) {
         clearInterval(dealerDrawInterval);
         setDealerHand(currentHand);
         setDealerScore(currentScore);
         setGameState("game-over");
         
+        // Determine winner
         if (currentScore > finalPlayerScore) {
           setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
-        } else {
+        } else if (currentScore === finalPlayerScore) {
           setResultMessage(`Push at ${currentScore}. House wins ties!`);
+        } else {
+          // This shouldn't happen if rigging works correctly
+          setResultMessage(`You win ${finalPlayerScore} to ${currentScore}!`);
         }
         return;
       }
@@ -208,18 +236,20 @@ export default function ResumeSection() {
       }
       
       // RIGGED: Calculate the perfect card to give dealer
+      // Dealer must follow rules (hit soft 17, stand hard 17+)
+      // But cards are rigged to ensure dealer reaches a winning score when they stand
+      // PUSH = HOUSE WINS, so tying player is also a valid win condition
       let perfectCard: Card | null = null;
       
-      // Target: Get dealer to beat player with score between 17-21
-      // Priority 1: Try to get exactly playerScore + 1 (or 21 if player has 21)
-      const idealTarget = finalPlayerScore === 21 ? 21 : Math.min(21, finalPlayerScore + 1);
+      // Target: Get dealer to beat OR tie player with score between 17-21
+      // Priority 1: Try to get exactly playerScore + 1 (beat by 1)
+      const idealTarget = Math.min(21, finalPlayerScore + 1);
       const idealNeeded = idealTarget - currentScore;
       
       if (idealNeeded >= 1 && idealNeeded <= 11) {
-        if (idealNeeded === 11) {
+        if (idealNeeded === 11 || idealNeeded === 1) {
+          // Use Ace (always numValue 11, calculateScore will adjust)
           perfectCard = { suit: suits[0], value: "A", numValue: 11 };
-        } else if (idealNeeded === 1) {
-          perfectCard = { suit: suits[0], value: "A", numValue: 1 };
         } else if (idealNeeded <= 10) {
           const matchVal = values.find(v => v.numValue === idealNeeded);
           if (matchVal) {
@@ -228,14 +258,16 @@ export default function ResumeSection() {
         }
       }
       
-      // Priority 2: Try any winning score between 17-21
+      // Priority 2: Try any winning score between 17-21 (including push)
       if (!perfectCard) {
         for (let target = 21; target >= 17; target--) {
-          if (target > finalPlayerScore || (target === 21 && finalPlayerScore === 21)) {
+          // Pushes count as wins, so >= instead of >
+          if (target >= finalPlayerScore) {
             const needed = target - currentScore;
             if (needed >= 1 && needed <= 11) {
               if (needed === 11 || needed === 1) {
-                perfectCard = { suit: suits[0], value: "A", numValue: needed };
+                // Use Ace (always numValue 11, calculateScore will adjust)
+                perfectCard = { suit: suits[0], value: "A", numValue: 11 };
                 break;
               } else if (needed <= 10) {
                 const matchVal = values.find(v => v.numValue === needed);
