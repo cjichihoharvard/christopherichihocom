@@ -115,9 +115,30 @@ export default function ResumeSection() {
     const newPlayerHand = [...playerHand];
     const currentResult = calculateScore(newPlayerHand);
     
-    // Rigged: If player has a good hand (17+), give them a bust card
-    const shouldBust = currentResult.score >= 17 && currentResult.score <= 20;
-    const newCard = shouldBust ? getRiggedCard(currentResult.score, true) : getRandomCard();
+    // Rigged: If player has 12+, higher chance of bust card
+    // If player has 17-20, almost guaranteed bust
+    let newCard: Card;
+    
+    if (currentResult.score >= 17 && currentResult.score <= 20) {
+      // Definitely give them a bust card
+      newCard = getRiggedCard(currentResult.score, true);
+    } else if (currentResult.score >= 12) {
+      // 70% chance of getting a card that pushes toward bust range
+      if (Math.random() < 0.7) {
+        // Give them a high card (7-10) to push them closer to busting
+        const highCards = values.filter(v => v.numValue >= 7);
+        const highCard = highCards[Math.floor(Math.random() * highCards.length)];
+        newCard = { 
+          suit: suits[Math.floor(Math.random() * 4)], 
+          value: highCard.value, 
+          numValue: highCard.numValue 
+        };
+      } else {
+        newCard = getRandomCard();
+      }
+    } else {
+      newCard = getRandomCard();
+    }
     
     newPlayerHand.push(newCard);
     setPlayerHand(newPlayerHand);
@@ -153,56 +174,62 @@ export default function ResumeSection() {
         // Dealer must hit on soft 17, must stand on hard 17+
         const mustHit = currentScore < 17 || (currentScore === 17 && currentResult.isSoft);
         
-        // Dealer must stand on hard 17+
+        // Dealer must stand on hard 17+ (17-21)
         if (!mustHit) {
           clearInterval(dealerDrawInterval);
           setGameState("game-over");
           setDealerScore(currentScore);
           
+          // Only valid outcomes: dealer busts (player wins - but we rigged to prevent this)
+          // OR dealer has 17-21 and beats player
           if (currentScore > 21) {
-            setResultMessage(`Dealer busts with ${currentScore}! Wait... you still lose somehow! 🎰`);
+            // This shouldn't happen due to rigging, but just in case
+            setResultMessage(`Dealer busts! But wait... the house says you lose anyway! 🎰`);
           } else if (currentScore > finalPlayerScore) {
             setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
           } else if (currentScore === finalPlayerScore) {
-            setResultMessage(`Push at ${currentScore}... but dealer wins anyway! 😏`);
+            setResultMessage(`Push at ${currentScore}... but house edge means you lose! 😏`);
           } else {
-            setResultMessage(`Dealer has ${currentScore}, you have ${finalPlayerScore}... dealer wins! (rigged!) 🃏`);
+            // Dealer has less than player - this shouldn't happen with rigging
+            setResultMessage(`Somehow dealer wins ${currentScore} to ${finalPlayerScore}! 🃏`);
           }
           return current;
         }
         
-        // Dealer must hit - RIGGED to ensure dealer wins
+        // Dealer must hit - RIGGED to get perfect card to beat player within 17-21
         let newCard: Card;
         
-        // Calculate what the dealer needs
-        const needed = finalPlayerScore - currentScore;
+        // Calculate perfect card to beat player and land on 17-21
+        // Try to get dealer to score higher than player but still 17-21
+        const minTarget = Math.max(17, finalPlayerScore + 1);
+        const maxTarget = 21;
         
-        // If dealer would reach hard 17+ with this card, make sure it beats player
-        if (currentScore >= 11 && !currentResult.isSoft) {
-          // Dealer is close to 17, give them a card that gets to 18-21 to beat player
-          const targetScore = Math.max(finalPlayerScore + 1, 18);
-          const perfectValue = Math.min(targetScore - currentScore, 11);
+        // Find a card value that gets dealer into winning range
+        let foundPerfect = false;
+        for (let targetScore = maxTarget; targetScore >= minTarget; targetScore--) {
+          const neededValue = targetScore - currentScore;
           
-          if (perfectValue >= 1 && perfectValue <= 11 && currentScore + perfectValue <= 21 && currentScore + perfectValue > finalPlayerScore) {
-            // Give perfect card to win
-            if (perfectValue === 11) {
-              newCard = { suit: suits[0], value: "A", numValue: 11 };
-            } else if (perfectValue === 1) {
-              newCard = { suit: suits[0], value: "A", numValue: 1 };
-            } else {
-              const matchingValue = values.find(v => v.numValue === perfectValue);
-              newCard = matchingValue 
-                ? { suit: suits[0], value: matchingValue.value, numValue: matchingValue.numValue }
-                : getRandomCard();
+          if (neededValue >= 1 && neededValue <= 11) {
+            // We can get this target with a valid card
+            if (neededValue === 11 || neededValue === 1) {
+              newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: neededValue };
+            } else if (neededValue <= 10) {
+              const matchingValue = values.find(v => v.numValue === neededValue);
+              if (matchingValue) {
+                newCard = { suit: suits[Math.floor(Math.random() * 4)], value: matchingValue.value, numValue: matchingValue.numValue };
+                foundPerfect = true;
+                break;
+              }
             }
-          } else {
-            newCard = getRandomCard();
           }
-        } else {
+        }
+        
+        // If we couldn't find a perfect card, just draw random (will keep hitting)
+        if (!foundPerfect) {
           newCard = getRandomCard();
         }
         
-        const newHand = [...current, newCard];
+        const newHand = [...current, newCard!];
         const newResult = calculateScore(newHand);
         setDealerScore(newResult.score);
         return newHand;
