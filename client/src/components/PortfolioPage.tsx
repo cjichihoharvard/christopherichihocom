@@ -6,7 +6,11 @@ import ProjectsGrid from "./ProjectsGrid";
 import PhilosophySection from "./PhilosophySection";
 import ContactSection from "./ContactSection";
 
-export default function PortfolioPage() {
+interface PortfolioPageProps {
+  onHomeClick?: () => void;
+}
+
+export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -14,7 +18,7 @@ export default function PortfolioPage() {
       transition={{ duration: 1.2 }}
       className="relative bg-gradient-to-b from-background via-background to-accent/5"
     >
-      <Navigation />
+      <Navigation onHomeClick={onHomeClick} />
 
       <div className="relative">
         <AboutSection />

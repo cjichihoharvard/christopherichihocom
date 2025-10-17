@@ -10,6 +10,11 @@ export default function Home() {
     setIsRevealed(true);
   };
 
+  const handleHomeClick = () => {
+    setIsRevealed(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="relative min-h-screen">
       <AnimatePresence>
@@ -24,7 +29,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {isRevealed && <PortfolioPage />}
+      {isRevealed && <PortfolioPage onHomeClick={handleHomeClick} />}
     </div>
   );
 }
