@@ -180,56 +180,73 @@ export default function ResumeSection() {
           setGameState("game-over");
           setDealerScore(currentScore);
           
-          // Only valid outcomes: dealer busts (player wins - but we rigged to prevent this)
-          // OR dealer has 17-21 and beats player
-          if (currentScore > 21) {
-            // This shouldn't happen due to rigging, but just in case
-            setResultMessage(`Dealer busts! But wait... the house says you lose anyway! 🎰`);
-          } else if (currentScore > finalPlayerScore) {
+          // REAL blackjack outcomes only - dealer must beat player legitimately
+          if (currentScore > finalPlayerScore) {
             setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
           } else if (currentScore === finalPlayerScore) {
-            setResultMessage(`Push at ${currentScore}... but house edge means you lose! 😏`);
+            // Push - dealer wins in this rigged game
+            setResultMessage(`Push at ${currentScore}. House wins ties!`);
           } else {
-            // Dealer has less than player - this shouldn't happen with rigging
-            setResultMessage(`Somehow dealer wins ${currentScore} to ${finalPlayerScore}! 🃏`);
+            // This should NEVER happen with proper rigging
+            setResultMessage(`ERROR: Dealer has ${currentScore}, you have ${finalPlayerScore}`);
           }
           return current;
         }
         
-        // Dealer must hit - RIGGED to get perfect card to beat player within 17-21
-        let newCard: Card;
+        // Dealer must hit - RIGGED to get perfect card to beat or tie player within 17-21
+        let newCard: Card | undefined;
         
-        // Calculate perfect card to beat player and land on 17-21
-        // Try to get dealer to score higher than player but still 17-21
-        const minTarget = Math.max(17, finalPlayerScore + 1);
-        const maxTarget = 21;
+        // If player has 21, dealer must get exactly 21 to push (and win the push)
+        // If player has less, dealer must get higher than player but ≤21
+        const targetScore = finalPlayerScore === 21 ? 21 : Math.min(21, finalPlayerScore + 1);
         
-        // Find a card value that gets dealer into winning range
-        let foundPerfect = false;
-        for (let targetScore = maxTarget; targetScore >= minTarget; targetScore--) {
-          const neededValue = targetScore - currentScore;
-          
-          if (neededValue >= 1 && neededValue <= 11) {
-            // We can get this target with a valid card
-            if (neededValue === 11 || neededValue === 1) {
-              newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: neededValue };
-            } else if (neededValue <= 10) {
-              const matchingValue = values.find(v => v.numValue === neededValue);
-              if (matchingValue) {
-                newCard = { suit: suits[Math.floor(Math.random() * 4)], value: matchingValue.value, numValue: matchingValue.numValue };
-                foundPerfect = true;
+        // Try to hit the exact target score first
+        const neededValue = targetScore - currentScore;
+        
+        if (neededValue >= 1 && neededValue <= 11) {
+          // We can reach target with a single card
+          if (neededValue === 11) {
+            newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: 11 };
+          } else if (neededValue === 1) {
+            newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: 1 };
+          } else if (neededValue <= 10) {
+            const matchingValue = values.find(v => v.numValue === neededValue);
+            if (matchingValue) {
+              newCard = { suit: suits[Math.floor(Math.random() * 4)], value: matchingValue.value, numValue: matchingValue.numValue };
+            }
+          }
+        }
+        
+        // If we can't hit exact target, try to get into 17-21 range that beats player
+        if (!newCard) {
+          // Try any score from 21 down to max(17, playerScore+1)
+          const minAcceptable = Math.max(17, finalPlayerScore + 1);
+          for (let tryScore = 21; tryScore >= minAcceptable; tryScore--) {
+            const tryValue = tryScore - currentScore;
+            if (tryValue >= 1 && tryValue <= 11) {
+              if (tryValue === 11 || tryValue === 1) {
+                newCard = { suit: suits[Math.floor(Math.random() * 4)], value: "A", numValue: tryValue };
                 break;
+              } else if (tryValue <= 10) {
+                const matchingValue = values.find(v => v.numValue === tryValue);
+                if (matchingValue) {
+                  newCard = { suit: suits[Math.floor(Math.random() * 4)], value: matchingValue.value, numValue: matchingValue.numValue };
+                  break;
+                }
               }
             }
           }
         }
         
-        // If we couldn't find a perfect card, just draw random (will keep hitting)
-        if (!foundPerfect) {
-          newCard = getRandomCard();
+        // If still no card found (shouldn't happen), give a low card to keep drawing
+        if (!newCard) {
+          const lowCard = values.find(v => v.numValue <= 4);
+          newCard = lowCard 
+            ? { suit: suits[0], value: lowCard.value, numValue: lowCard.numValue }
+            : getRandomCard();
         }
         
-        const newHand = [...current, newCard!];
+        const newHand = [...current, newCard];
         const newResult = calculateScore(newHand);
         setDealerScore(newResult.score);
         return newHand;
