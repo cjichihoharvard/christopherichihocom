@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Lock, RotateCcw, FileText } from "lucide-react";
 import { useRef } from "react";
@@ -11,7 +11,7 @@ type Card = {
   numValue: number;
 };
 
-type GameResult = "win" | "lose" | "push" | null;
+type GameState = "betting" | "playing" | "dealer-turn" | "game-over";
 
 export default function ResumeSection() {
   const ref = useRef(null);
@@ -19,10 +19,10 @@ export default function ResumeSection() {
 
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);
-  const [gameResult, setGameResult] = useState<GameResult>(null);
-  const [isSimulating, setIsSimulating] = useState(false);
+  const [gameState, setGameState] = useState<GameState>("betting");
   const [playerScore, setPlayerScore] = useState(0);
   const [dealerScore, setDealerScore] = useState(0);
+  const [resultMessage, setResultMessage] = useState("");
 
   const suits = ["♠", "♥", "♦", "♣"];
   const values = [
@@ -51,6 +51,22 @@ export default function ResumeSection() {
     };
   };
 
+  const getRiggedCard = (currentTotal: number, shouldBust: boolean): Card => {
+    const suit = suits[Math.floor(Math.random() * suits.length)];
+    
+    if (shouldBust) {
+      // Give a card that will bust them
+      const bustValues = values.filter(v => currentTotal + v.numValue > 21);
+      if (bustValues.length > 0) {
+        const bustCard = bustValues[Math.floor(Math.random() * bustValues.length)];
+        return { suit, value: bustCard.value, numValue: bustCard.numValue };
+      }
+    }
+    
+    // Otherwise give a random card
+    return getRandomCard();
+  };
+
   const calculateScore = (hand: Card[]): number => {
     let score = 0;
     let aces = 0;
@@ -68,91 +84,100 @@ export default function ResumeSection() {
     return score;
   };
 
-  const simulateGame = () => {
-    setIsSimulating(true);
-    setGameResult(null);
-
-    // Deal initial hands
+  const startNewGame = () => {
     const initialPlayerHand = [getRandomCard(), getRandomCard()];
-    const initialDealerHand = [getRandomCard(), getRandomCard()];
+    const initialDealerHand = [getRandomCard()]; // Dealer shows one card
 
     setPlayerHand(initialPlayerHand);
     setDealerHand(initialDealerHand);
+    setPlayerScore(calculateScore(initialPlayerHand));
+    setDealerScore(calculateScore(initialDealerHand));
+    setGameState("playing");
+    setResultMessage("");
+  };
 
-    let currentPlayerHand = [...initialPlayerHand];
-    let currentDealerHand = [...initialDealerHand];
+  const hit = () => {
+    if (gameState !== "playing") return;
 
-    setTimeout(() => {
-      // Player's turn - rigged to make decent but losing hands
-      let playerTotal = calculateScore(currentPlayerHand);
-      
-      // Player might hit once or twice but won't beat dealer
-      while (playerTotal < 17 && Math.random() > 0.3) {
-        const newCard = getRandomCard();
-        currentPlayerHand.push(newCard);
-        playerTotal = calculateScore(currentPlayerHand);
-        setPlayerHand([...currentPlayerHand]);
-      }
+    const newPlayerHand = [...playerHand];
+    const currentTotal = calculateScore(newPlayerHand);
+    
+    // Rigged: If player has a good hand (17+), give them a bust card
+    const shouldBust = currentTotal >= 17 && currentTotal <= 20;
+    const newCard = shouldBust ? getRiggedCard(currentTotal, true) : getRandomCard();
+    
+    newPlayerHand.push(newCard);
+    setPlayerHand(newPlayerHand);
+    
+    const newScore = calculateScore(newPlayerHand);
+    setPlayerScore(newScore);
 
-      setTimeout(() => {
-        // Dealer's turn - rigged to always win
-        let dealerTotal = calculateScore(currentDealerHand);
+    if (newScore > 21) {
+      setGameState("game-over");
+      setResultMessage(`Bust! You lose with ${newScore}`);
+    }
+  };
+
+  const stand = () => {
+    if (gameState !== "playing") return;
+    
+    setGameState("dealer-turn");
+    
+    // Dealer reveals hidden card and draws
+    const newDealerHand = [...dealerHand];
+    newDealerHand.push(getRandomCard()); // Second card
+    setDealerHand(newDealerHand);
+    
+    const finalPlayerScore = calculateScore(playerHand);
+    
+    // Dealer draws until they beat the player
+    let dealerDrawInterval = setInterval(() => {
+      setDealerHand(current => {
+        const currentScore = calculateScore(current);
         
-        // If player busted, dealer wins immediately
-        if (playerTotal > 21) {
-          setPlayerScore(playerTotal);
-          setDealerScore(dealerTotal);
-          setGameResult("lose");
-          setIsSimulating(false);
-          return;
+        // Dealer needs to beat player
+        if (currentScore > finalPlayerScore && currentScore <= 21) {
+          clearInterval(dealerDrawInterval);
+          setGameState("game-over");
+          setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
+          return current;
         }
-
-        // Dealer keeps hitting until they beat player (but not bust if possible)
-        while (dealerTotal < playerTotal || (dealerTotal === playerTotal && dealerTotal < 21)) {
-          const newCard = getRandomCard();
-          currentDealerHand.push(newCard);
-          dealerTotal = calculateScore(currentDealerHand);
-          setDealerHand([...currentDealerHand]);
+        
+        // Dealer at risk of busting but needs to beat player
+        if (currentScore >= 17 && currentScore <= finalPlayerScore) {
+          // Rigged: Give dealer a perfect card to beat player without busting
+          const needed = finalPlayerScore - currentScore + 1;
+          const perfectValue = Math.min(needed, 11);
+          let perfectCard: Card;
           
-          // If dealer would bust, give them a perfect card instead (rigged!)
-          if (dealerTotal > 21 && dealerTotal < 31) {
-            // Replace last card with a perfect card
-            const needed = 21 - calculateScore(currentDealerHand.slice(0, -1));
-            const perfectCard = {
-              suit: suits[Math.floor(Math.random() * suits.length)],
-              value: needed <= 10 ? needed.toString() : needed === 11 ? "A" : "K",
-              numValue: needed,
-            };
-            currentDealerHand[currentDealerHand.length - 1] = perfectCard;
-            dealerTotal = calculateScore(currentDealerHand);
-            setDealerHand([...currentDealerHand]);
+          if (perfectValue === 11) {
+            perfectCard = { suit: suits[0], value: "A", numValue: 11 };
+          } else if (perfectValue === 1) {
+            perfectCard = { suit: suits[0], value: "A", numValue: 1 };
+          } else {
+            const matchingValue = values.find(v => v.numValue === perfectValue);
+            perfectCard = matchingValue 
+              ? { suit: suits[0], value: matchingValue.value, numValue: matchingValue.numValue }
+              : { suit: suits[0], value: perfectValue.toString(), numValue: perfectValue };
           }
+          
+          const newHand = [...current, perfectCard];
+          const newScore = calculateScore(newHand);
+          setDealerScore(newScore);
+          
+          clearInterval(dealerDrawInterval);
+          setGameState("game-over");
+          setResultMessage(`Dealer wins ${newScore} to ${finalPlayerScore}!`);
+          return newHand;
         }
-
-        setPlayerScore(playerTotal);
-        setDealerScore(dealerTotal);
-
-        // Dealer always wins (rigged!)
-        if (dealerTotal > playerTotal && dealerTotal <= 21) {
-          setGameResult("lose");
-        } else if (dealerTotal === playerTotal) {
-          // Even on a push, make dealer win by giving them one more perfect card
-          const perfectCard = {
-            suit: suits[0],
-            value: "A",
-            numValue: 1,
-          };
-          currentDealerHand.push(perfectCard);
-          setDealerHand([...currentDealerHand]);
-          setDealerScore(dealerTotal + 1);
-          setGameResult("lose");
-        } else {
-          setGameResult("lose");
-        }
-
-        setIsSimulating(false);
-      }, 1500);
-    }, 1000);
+        
+        // Keep drawing
+        const newCard = getRandomCard();
+        const newHand = [...current, newCard];
+        setDealerScore(calculateScore(newHand));
+        return newHand;
+      });
+    }, 800);
   };
 
   return (
@@ -198,7 +223,7 @@ export default function ResumeSection() {
                 {/* Dealer's Hand */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">
-                    Dealer's Hand {dealerScore > 0 && `(${dealerScore})`}
+                    Dealer's Hand {gameState !== "betting" && `(${dealerScore})`}
                   </h3>
                   <div className="flex gap-2 flex-wrap min-h-[80px]" data-testid="dealer-hand">
                     {dealerHand.map((card, i) => (
@@ -221,7 +246,7 @@ export default function ResumeSection() {
                 {/* Player's Hand */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">
-                    Your Hand {playerScore > 0 && `(${playerScore})`}
+                    Your Hand {gameState !== "betting" && `(${playerScore})`}
                   </h3>
                   <div className="flex gap-2 flex-wrap min-h-[80px]" data-testid="player-hand">
                     {playerHand.map((card, i) => (
@@ -242,14 +267,14 @@ export default function ResumeSection() {
                 </div>
 
                 {/* Game Result */}
-                {gameResult && (
+                {resultMessage && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-4"
                   >
                     <p className="text-xl font-bold text-destructive" data-testid="text-game-result">
-                      You Lose! Dealer wins {dealerScore} to {playerScore}
+                      {resultMessage}
                     </p>
                     <p className="text-sm text-muted-foreground mt-2">
                       The house always wins... Try again? 😏
@@ -259,25 +284,46 @@ export default function ResumeSection() {
 
                 {/* Controls */}
                 <div className="flex gap-3 justify-center pt-4">
-                  <Button
-                    onClick={simulateGame}
-                    disabled={isSimulating}
-                    size="lg"
-                    className="gap-2"
-                    data-testid="button-play-blackjack"
-                  >
-                    {isSimulating ? (
-                      <>
-                        <RotateCcw className="w-4 h-4 animate-spin" />
-                        Simulating...
-                      </>
-                    ) : (
-                      <>
-                        <FileText className="w-4 h-4" />
-                        {gameResult ? "Try Again" : "Play Blackjack"}
-                      </>
-                    )}
-                  </Button>
+                  {gameState === "betting" ? (
+                    <Button
+                      onClick={startNewGame}
+                      size="lg"
+                      className="gap-2"
+                      data-testid="button-deal"
+                    >
+                      <FileText className="w-4 h-4" />
+                      Deal Cards
+                    </Button>
+                  ) : gameState === "playing" ? (
+                    <>
+                      <Button
+                        onClick={hit}
+                        size="lg"
+                        variant="default"
+                        data-testid="button-hit"
+                      >
+                        Hit
+                      </Button>
+                      <Button
+                        onClick={stand}
+                        size="lg"
+                        variant="outline"
+                        data-testid="button-stand"
+                      >
+                        Stand
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={startNewGame}
+                      size="lg"
+                      className="gap-2"
+                      data-testid="button-play-again"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Play Again
+                    </Button>
+                  )}
                 </div>
               </div>
 
