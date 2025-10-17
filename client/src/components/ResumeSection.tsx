@@ -67,7 +67,7 @@ export default function ResumeSection() {
     return getRandomCard();
   };
 
-  const calculateScore = (hand: Card[]): number => {
+  const calculateScore = (hand: Card[]): { score: number; isSoft: boolean; displayScore: string } => {
     let score = 0;
     let aces = 0;
 
@@ -76,12 +76,25 @@ export default function ResumeSection() {
       if (card.value === "A") aces++;
     });
 
-    while (score > 21 && aces > 0) {
+    let usableAces = aces;
+    while (score > 21 && usableAces > 0) {
       score -= 10;
-      aces--;
+      usableAces--;
     }
 
-    return score;
+    // Check if this is a soft hand (ace counted as 11)
+    const isSoft = usableAces > 0 && score <= 21;
+    
+    // Display both values if soft hand and different
+    let displayScore = score.toString();
+    if (isSoft && aces > 0) {
+      const hardScore = score - 10;
+      if (hardScore !== score) {
+        displayScore = `${hardScore}/${score}`;
+      }
+    }
+
+    return { score, isSoft, displayScore };
   };
 
   const startNewGame = () => {
@@ -90,8 +103,8 @@ export default function ResumeSection() {
 
     setPlayerHand(initialPlayerHand);
     setDealerHand(initialDealerHand);
-    setPlayerScore(calculateScore(initialPlayerHand));
-    setDealerScore(calculateScore(initialDealerHand));
+    setPlayerScore(calculateScore(initialPlayerHand).score);
+    setDealerScore(calculateScore(initialDealerHand).score);
     setGameState("playing");
     setResultMessage("");
   };
@@ -100,21 +113,21 @@ export default function ResumeSection() {
     if (gameState !== "playing") return;
 
     const newPlayerHand = [...playerHand];
-    const currentTotal = calculateScore(newPlayerHand);
+    const currentResult = calculateScore(newPlayerHand);
     
     // Rigged: If player has a good hand (17+), give them a bust card
-    const shouldBust = currentTotal >= 17 && currentTotal <= 20;
-    const newCard = shouldBust ? getRiggedCard(currentTotal, true) : getRandomCard();
+    const shouldBust = currentResult.score >= 17 && currentResult.score <= 20;
+    const newCard = shouldBust ? getRiggedCard(currentResult.score, true) : getRandomCard();
     
     newPlayerHand.push(newCard);
     setPlayerHand(newPlayerHand);
     
-    const newScore = calculateScore(newPlayerHand);
-    setPlayerScore(newScore);
+    const newResult = calculateScore(newPlayerHand);
+    setPlayerScore(newResult.score);
 
-    if (newScore > 21) {
+    if (newResult.score > 21) {
       setGameState("game-over");
-      setResultMessage(`Bust! You lose with ${newScore}`);
+      setResultMessage(`Bust! You lose with ${newResult.score}`);
     }
   };
 
@@ -128,53 +141,58 @@ export default function ResumeSection() {
     newDealerHand.push(getRandomCard()); // Second card
     setDealerHand(newDealerHand);
     
-    const finalPlayerScore = calculateScore(playerHand);
+    const finalPlayerResult = calculateScore(playerHand);
+    const finalPlayerScore = finalPlayerResult.score;
     
-    // Dealer draws until they beat the player
+    // Dealer draws until they beat the player (must hit on soft 17)
     let dealerDrawInterval = setInterval(() => {
       setDealerHand(current => {
-        const currentScore = calculateScore(current);
+        const currentResult = calculateScore(current);
+        const currentScore = currentResult.score;
         
-        // Dealer needs to beat player
-        if (currentScore > finalPlayerScore && currentScore <= 21) {
+        // Dealer must hit on soft 17
+        const mustHit = currentScore < 17 || (currentScore === 17 && currentResult.isSoft);
+        
+        // Dealer beats player and doesn't need to hit
+        if (currentScore > finalPlayerScore && currentScore <= 21 && !mustHit) {
           clearInterval(dealerDrawInterval);
           setGameState("game-over");
           setResultMessage(`Dealer wins ${currentScore} to ${finalPlayerScore}!`);
+          setDealerScore(currentScore);
           return current;
         }
         
-        // Dealer at risk of busting but needs to beat player
-        if (currentScore >= 17 && currentScore <= finalPlayerScore) {
+        // Dealer would stand (hard 17+) but hasn't beat player yet - RIGGED!
+        if (!mustHit && currentScore <= finalPlayerScore) {
           // Rigged: Give dealer a perfect card to beat player without busting
           const needed = finalPlayerScore - currentScore + 1;
           const perfectValue = Math.min(needed, 11);
           let perfectCard: Card;
           
-          if (perfectValue === 11) {
-            perfectCard = { suit: suits[0], value: "A", numValue: 11 };
-          } else if (perfectValue === 1) {
-            perfectCard = { suit: suits[0], value: "A", numValue: 1 };
+          if (perfectValue === 11 || perfectValue === 1) {
+            perfectCard = { suit: suits[0], value: "A", numValue: perfectValue };
           } else {
             const matchingValue = values.find(v => v.numValue === perfectValue);
             perfectCard = matchingValue 
               ? { suit: suits[0], value: matchingValue.value, numValue: matchingValue.numValue }
-              : { suit: suits[0], value: perfectValue.toString(), numValue: perfectValue };
+              : { suit: suits[0], value: Math.min(perfectValue, 10).toString(), numValue: Math.min(perfectValue, 10) };
           }
           
           const newHand = [...current, perfectCard];
-          const newScore = calculateScore(newHand);
-          setDealerScore(newScore);
+          const newResult = calculateScore(newHand);
+          setDealerScore(newResult.score);
           
           clearInterval(dealerDrawInterval);
           setGameState("game-over");
-          setResultMessage(`Dealer wins ${newScore} to ${finalPlayerScore}!`);
+          setResultMessage(`Dealer wins ${newResult.score} to ${finalPlayerScore}!`);
           return newHand;
         }
         
-        // Keep drawing
+        // Must hit - keep drawing
         const newCard = getRandomCard();
         const newHand = [...current, newCard];
-        setDealerScore(calculateScore(newHand));
+        const newResult = calculateScore(newHand);
+        setDealerScore(newResult.score);
         return newHand;
       });
     }, 800);
@@ -223,7 +241,7 @@ export default function ResumeSection() {
                 {/* Dealer's Hand */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">
-                    Dealer's Hand {gameState !== "betting" && `(${dealerScore})`}
+                    Dealer's Hand {gameState !== "betting" && dealerHand.length > 0 && `(${calculateScore(dealerHand).displayScore})`}
                   </h3>
                   <div className="flex gap-2 flex-wrap min-h-[80px]" data-testid="dealer-hand">
                     {dealerHand.map((card, i) => (
@@ -246,7 +264,7 @@ export default function ResumeSection() {
                 {/* Player's Hand */}
                 <div className="space-y-2">
                   <h3 className="text-sm font-semibold text-muted-foreground">
-                    Your Hand {gameState !== "betting" && `(${playerScore})`}
+                    Your Hand {gameState !== "betting" && playerHand.length > 0 && `(${calculateScore(playerHand).displayScore})`}
                   </h3>
                   <div className="flex gap-2 flex-wrap min-h-[80px]" data-testid="player-hand">
                     {playerHand.map((card, i) => (
