@@ -31,9 +31,9 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
 
       <div className="relative pt-20">
         <ContactSection />
-        <ResumeSection />
         <BlogSection />
         <GallerySection />
+        <ResumeSection />
         <PokerSection />
       </div>
 
