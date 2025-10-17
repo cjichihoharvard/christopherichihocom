@@ -20,10 +20,10 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
       <Navigation onHomeClick={onHomeClick} />
 
       <div className="relative pt-20">
+        <ContactSection />
         <BlogSection />
         <GallerySection />
         <PokerSection />
-        <ContactSection />
       </div>
 
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
