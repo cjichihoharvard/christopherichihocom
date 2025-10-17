@@ -9,14 +9,14 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-8"
+      className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center p-8"
     >
       <div className="text-center space-y-8 max-w-2xl">
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-xl font-mono text-black"
+          className="text-xl font-mono text-white"
         >
           Hello World.
         </motion.h1>
@@ -25,7 +25,7 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="font-mono text-base text-black leading-relaxed space-y-1"
+          className="font-mono text-base text-white leading-relaxed space-y-1"
         >
           <p>I studied at:</p>
           <p>Landell Elementary,</p>
@@ -40,7 +40,7 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
           onClick={onReveal}
-          className="mt-12 px-8 py-3 border border-black font-mono text-sm hover:bg-black hover:text-white transition-all duration-300 flex items-center gap-2 mx-auto"
+          className="mt-12 px-8 py-3 border border-white font-mono text-sm text-white hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 mx-auto"
           data-testid="button-reveal-more"
         >
           More
