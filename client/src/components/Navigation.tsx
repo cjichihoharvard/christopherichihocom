@@ -1,0 +1,66 @@
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+
+const navItems = [
+  { label: "About", href: "#about" },
+  { label: "Journey", href: "#journey" },
+  { label: "Projects", href: "#projects" },
+  { label: "Philosophy", href: "#philosophy" },
+  { label: "Contact", href: "#contact" },
+];
+
+export default function Navigation() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToSection = (href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        isScrolled ? "backdrop-blur-lg bg-background/80 shadow-lg" : ""
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-xl font-heading font-semibold text-foreground"
+        >
+          Christopher
+        </motion.div>
+
+        <div className="flex gap-8">
+          {navItems.map((item, index) => (
+            <motion.button
+              key={item.href}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => scrollToSection(item.href)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group"
+              data-testid={`nav-link-${item.label.toLowerCase()}`}
+            >
+              {item.label}
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary group-hover:w-full transition-all duration-300"></span>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </motion.nav>
+  );
+}
