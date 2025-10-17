@@ -26,6 +26,10 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
         <PokerSection />
       </div>
 
+      <div className="py-8 text-center text-sm text-muted-foreground">
+        <p>© 2025 Christopher. Built with passion and precision.</p>
+      </div>
+
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <motion.div
           animate={{

@@ -68,15 +68,6 @@ export default function ContactSection() {
             </motion.div>
           ))}
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="pt-12 text-sm text-muted-foreground"
-        >
-          <p>© 2025 Christopher. Built with passion and precision.</p>
-        </motion.div>
       </motion.div>
 
       <motion.div
