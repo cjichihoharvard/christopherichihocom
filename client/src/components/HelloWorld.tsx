@@ -69,10 +69,40 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           data-testid="button-reveal-more"
         >
           More
-          <div className="flex gap-0.5 animate-bounce-slow">
-            <ChevronDown className="w-3 h-3" />
-            <ChevronDown className="w-3 h-3" />
-            <ChevronDown className="w-3 h-3" />
+          <div className="flex gap-0.5">
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0,
+              }}
+            >
+              <ChevronDown className="w-3 h-3" />
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.15,
+              }}
+            >
+              <ChevronDown className="w-3 h-3" />
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.3,
+              }}
+            >
+              <ChevronDown className="w-3 h-3" />
+            </motion.div>
           </div>
         </motion.button>
       </div>
