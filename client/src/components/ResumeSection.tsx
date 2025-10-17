@@ -408,18 +408,119 @@ export default function ResumeSection() {
                 </div>
               </div>
 
-              {/* Locked Resume Preview */}
-              <div className="relative mt-8 p-6 bg-muted/50 rounded-lg backdrop-blur-sm">
-                <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
-                  <Lock className="w-16 h-16 text-muted-foreground/30" />
+              {/* Locked Resume Preview - Full Page */}
+              <div className="relative mt-8 p-8 bg-muted/50 rounded-lg backdrop-blur-sm min-h-[600px]">
+                <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg z-10">
+                  <Lock className="w-20 h-20 text-muted-foreground/30" />
                 </div>
                 <div className="blur-sm select-none opacity-50">
-                  <h3 className="text-xl font-bold mb-4">Christopher James Ichiho</h3>
-                  <p className="text-sm mb-2">Software Engineer | Full-Stack Developer</p>
-                  <div className="space-y-2">
-                    <p className="text-xs">Education: Harvard University, Boston University</p>
-                    <p className="text-xs">Skills: React, TypeScript, Node.js, Python...</p>
-                    <p className="text-xs">Experience: Senior Developer at...</p>
+                  {/* Resume Header */}
+                  <div className="text-center mb-8 border-b pb-6">
+                    <h3 className="text-3xl font-bold mb-2">Christopher James Ichiho</h3>
+                    <p className="text-lg mb-3">Software Engineer | Full-Stack Developer | Tech Innovator</p>
+                    <p className="text-sm text-muted-foreground">
+                      contact@example.com | (555) 123-4567 | Los Angeles, CA | linkedin.com/in/example
+                    </p>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="mb-6">
+                    <h4 className="text-lg font-bold mb-3 uppercase tracking-wide">Professional Summary</h4>
+                    <p className="text-sm leading-relaxed">
+                      Innovative software engineer with extensive experience in full-stack development, 
+                      cloud architecture, and scalable systems. Proven track record of leading high-impact 
+                      projects and delivering robust solutions. Expert in modern web technologies, microservices, 
+                      and agile methodologies with a passion for creating exceptional user experiences.
+                    </p>
+                  </div>
+
+                  {/* Experience */}
+                  <div className="mb-6">
+                    <h4 className="text-lg font-bold mb-3 uppercase tracking-wide">Professional Experience</h4>
+                    
+                    <div className="mb-4">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <p className="font-semibold">Senior Software Engineer</p>
+                        <p className="text-sm text-muted-foreground">2021 - Present</p>
+                      </div>
+                      <p className="text-sm italic mb-2">Tech Innovations Inc. | San Francisco, CA</p>
+                      <ul className="text-sm space-y-1 ml-5 list-disc">
+                        <li>Led development of cloud-native applications serving 2M+ users</li>
+                        <li>Architected microservices infrastructure reducing latency by 60%</li>
+                        <li>Mentored team of 8 junior developers in best practices</li>
+                        <li>Implemented CI/CD pipelines improving deployment efficiency by 75%</li>
+                      </ul>
+                    </div>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <p className="font-semibold">Full-Stack Developer</p>
+                        <p className="text-sm text-muted-foreground">2018 - 2021</p>
+                      </div>
+                      <p className="text-sm italic mb-2">Digital Solutions Corp | Boston, MA</p>
+                      <ul className="text-sm space-y-1 ml-5 list-disc">
+                        <li>Developed responsive web applications using React and Node.js</li>
+                        <li>Optimized database queries reducing load times by 45%</li>
+                        <li>Collaborated with UX team to enhance user engagement by 30%</li>
+                        <li>Integrated third-party APIs for payment processing and analytics</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Education */}
+                  <div className="mb-6">
+                    <h4 className="text-lg font-bold mb-3 uppercase tracking-wide">Education</h4>
+                    
+                    <div className="mb-3">
+                      <div className="flex justify-between items-baseline mb-1">
+                        <p className="font-semibold">Master of Science in Computer Science</p>
+                        <p className="text-sm text-muted-foreground">2016 - 2018</p>
+                      </div>
+                      <p className="text-sm">Harvard University | Cambridge, MA</p>
+                      <p className="text-xs text-muted-foreground">GPA: 3.9/4.0 | Focus: Distributed Systems</p>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <p className="font-semibold">Bachelor of Science in Computer Science</p>
+                        <p className="text-sm text-muted-foreground">2012 - 2016</p>
+                      </div>
+                      <p className="text-sm">Boston University | Boston, MA</p>
+                      <p className="text-xs text-muted-foreground">GPA: 3.8/4.0 | Magna Cum Laude</p>
+                    </div>
+                  </div>
+
+                  {/* Skills */}
+                  <div className="mb-6">
+                    <h4 className="text-lg font-bold mb-3 uppercase tracking-wide">Technical Skills</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-sm font-semibold mb-1">Languages:</p>
+                        <p className="text-xs">JavaScript, TypeScript, Python, Java, Go, SQL</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold mb-1">Frameworks:</p>
+                        <p className="text-xs">React, Node.js, Express, Django, Spring Boot</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold mb-1">Cloud & DevOps:</p>
+                        <p className="text-xs">AWS, Docker, Kubernetes, Jenkins, Terraform</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold mb-1">Databases:</p>
+                        <p className="text-xs">PostgreSQL, MongoDB, Redis, DynamoDB</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Certifications */}
+                  <div>
+                    <h4 className="text-lg font-bold mb-3 uppercase tracking-wide">Certifications</h4>
+                    <ul className="text-sm space-y-1">
+                      <li>• AWS Certified Solutions Architect - Professional</li>
+                      <li>• Google Cloud Professional Developer</li>
+                      <li>• Certified Kubernetes Administrator (CKA)</li>
+                    </ul>
                   </div>
                 </div>
               </div>
