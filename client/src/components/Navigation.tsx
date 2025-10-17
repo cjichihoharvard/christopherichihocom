@@ -2,10 +2,10 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 const navItems = [
+  { label: "Contact", href: "#contact" },
   { label: "Blog", href: "#blog" },
   { label: "Gallery", href: "#gallery" },
   { label: "Aaaargh Poker!", href: "#poker" },
-  { label: "Contact", href: "#contact" },
 ];
 
 interface NavigationProps {
