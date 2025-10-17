@@ -287,9 +287,16 @@ export default function ResumeSection() {
                 <Lock className="w-6 h-6 text-primary" data-testid="icon-lock" />
                 <CardTitle className="text-2xl">Locked Content</CardTitle>
               </div>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground text-sm mb-4">
                 Beat the dealer at Blackjack to unlock the resume
               </p>
+              <div className="text-left max-w-md mx-auto bg-muted/30 rounded-lg p-3">
+                <p className="text-xs font-semibold text-foreground mb-2">Rules:</p>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li>• Get as close to 21 as possible without going over</li>
+                  <li>• Dealer must hit soft 17</li>
+                </ul>
+              </div>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Blackjack Game */}
