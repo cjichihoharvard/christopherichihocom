@@ -112,7 +112,7 @@ export default function PokerSection() {
                 type: "spring",
                 stiffness: 80
               }}
-              whileHover={{ scale: 1.03, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}
+              whileHover={{ scale: 1.03 }}
               style={{ transformStyle: "preserve-3d" }}
               data-testid={`poker-hand-${hand.id}`}
             >
