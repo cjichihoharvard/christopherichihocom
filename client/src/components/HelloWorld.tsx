@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 
 interface HelloWorldProps {
   onReveal: () => void;
@@ -51,12 +50,12 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           className="font-mono text-sm text-white leading-relaxed max-w-3xl pt-4"
         >
           <p>
-            I like to think life's a mix of strategy, luck, and a little bit of bluffing. 
-            I've navigated poker tables, golf courses, and startup pitches—with mixed results. 
-            When I'm not chasing PRs in the gym, I'm chasing hope with the Lakers, Dodgers, 
-            and Ducks, while tracking the PGA Tour leaderboard. I love learning new things, 
-            meeting curious people, and finding humor in the chaos—because that's where 
-            life's best stories begin.
+            I like to think life's a blend of strategy, timing, and the confidence to take a few risks. 
+            I've navigated poker tables, golf courses, and startup pitches—with mixed results and plenty 
+            of laughs along the way. When I'm not chasing PRs in the gym, I'm cheering on the Lakers, 
+            Dodgers, and Ducks while keeping an eye on the PGA Tour leaderboard. I love learning new 
+            things, meeting curious people, and finding humor in the chaos—because that's where life's 
+            best stories begin.
           </p>
         </motion.div>
 
@@ -69,40 +68,10 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           data-testid="button-reveal-more"
         >
           More
-          <div className="flex gap-0.5">
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0,
-              }}
-            >
-              <ChevronDown className="w-3 h-3" />
-            </motion.div>
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.15,
-              }}
-            >
-              <ChevronDown className="w-3 h-3" />
-            </motion.div>
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.3,
-              }}
-            >
-              <ChevronDown className="w-3 h-3" />
-            </motion.div>
+          <div className="flex gap-1 items-center">
+            <div className="w-1 h-1 rounded-full bg-white"></div>
+            <div className="w-1 h-1 rounded-full bg-white"></div>
+            <div className="w-1 h-1 rounded-full bg-white"></div>
           </div>
         </motion.button>
       </div>
