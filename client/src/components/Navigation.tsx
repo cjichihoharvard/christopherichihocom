@@ -8,7 +8,6 @@ const navItems = [
   { label: "Blog", href: "#blog" },
   { label: "Gallery", href: "#gallery" },
   { label: "Resume", href: "#resume" },
-  { label: "Aaaargh Poker!", href: "#poker" },
 ];
 
 interface NavigationProps {

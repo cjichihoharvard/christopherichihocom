@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { Mail, Github, Linkedin } from "lucide-react";
+import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ContactSection() {
@@ -47,7 +47,6 @@ export default function ContactSection() {
         >
           {[
             { icon: Mail, label: "Email Me", testId: "button-email", href: "mailto:christopher_ichiho@gmail.com" },
-            { icon: Github, label: "GitHub", testId: "button-github", href: "#" },
             { icon: Linkedin, label: "LinkedIn", testId: "button-linkedin", href: "https://www.linkedin.com/in/christopherichiho" },
           ].map((item, index) => (
             <motion.div
@@ -62,7 +61,7 @@ export default function ContactSection() {
                 data-testid={item.testId}
                 asChild
               >
-                <a href={item.href} target={item.icon === Github || item.icon === Linkedin ? "_blank" : undefined} rel={item.icon === Github || item.icon === Linkedin ? "noopener noreferrer" : undefined}>
+                <a href={item.href} target={item.icon === Linkedin ? "_blank" : undefined} rel={item.icon === Linkedin ? "noopener noreferrer" : undefined}>
                   <item.icon className="w-5 h-5" />
                   {item.label}
                 </a>
@@ -72,18 +71,6 @@ export default function ContactSection() {
         </motion.div>
       </motion.div>
 
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          rotate: [0, 180, 360],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-        className="absolute top-20 right-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
-      />
     </section>
   );
 }

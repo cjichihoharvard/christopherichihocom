@@ -2,7 +2,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Navigation from "./Navigation";
 import BlogSection from "./BlogSection";
 import GallerySection from "./GallerySection";
-import PokerSection from "./PokerSection";
 import ContactSection from "./ContactSection";
 import ResumeSection from "./ResumeSection";
 
@@ -34,7 +33,6 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
         <BlogSection />
         <GallerySection />
         <ResumeSection />
-        <PokerSection />
       </div>
 
       <div className="py-8 text-center text-sm text-muted-foreground">
