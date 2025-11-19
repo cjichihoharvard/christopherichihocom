@@ -31,16 +31,24 @@ export default function PortfolioPage({ onHomeClick }: PortfolioPageProps) {
       </div>
 
       {/* Static subtle background pattern */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        {/* Very subtle gradient base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-background to-slate-50/30 dark:from-slate-900/50 dark:via-background dark:to-slate-900/30" />
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
+        {/* Soft gradient base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/25 dark:from-blue-950/20 dark:via-purple-950/15 dark:to-pink-950/20" />
         
-        {/* Subtle dot pattern */}
+        {/* Static soft geometric shapes */}
+        <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-gradient-radial from-blue-200/20 via-blue-100/10 to-transparent dark:from-blue-800/15 dark:via-blue-900/8 dark:to-transparent blur-3xl" />
+        <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-gradient-radial from-purple-200/15 via-purple-100/8 to-transparent dark:from-purple-800/12 dark:via-purple-900/6 dark:to-transparent blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] bg-gradient-radial from-pink-200/15 via-pink-100/8 to-transparent dark:from-pink-800/12 dark:via-pink-900/6 dark:to-transparent blur-3xl" />
+        
+        {/* Very subtle grid pattern */}
         <div 
-          className="absolute inset-0 opacity-[0.015] dark:opacity-[0.025]"
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
           style={{
-            backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
-            backgroundSize: "24px 24px",
+            backgroundImage: `
+              linear-gradient(to right, currentColor 1px, transparent 1px),
+              linear-gradient(to bottom, currentColor 1px, transparent 1px)
+            `,
+            backgroundSize: "80px 80px",
           }}
         />
       </div>
