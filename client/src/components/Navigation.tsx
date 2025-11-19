@@ -1,7 +1,5 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Link } from "wouter";
-import { Settings } from "lucide-react";
 
 const navItems = [
   { label: "Contact", href: "#contact" },
@@ -66,18 +64,6 @@ export default function Navigation({ onHomeClick }: NavigationProps) {
               <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary group-hover:w-full transition-all duration-300"></span>
             </motion.button>
           ))}
-          <Link href="/admin">
-            <motion.button
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: navItems.length * 0.1 }}
-              className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors"
-              data-testid="nav-link-admin"
-            >
-              <Settings className="w-4 h-4" />
-              Admin
-            </motion.button>
-          </Link>
         </div>
       </div>
     </motion.nav>
