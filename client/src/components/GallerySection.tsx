@@ -1,16 +1,13 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { GalleryPhoto } from "@shared/schema";
+import { galleryPhotos } from "@/data/galleryPhotos";
 
 export default function GallerySection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
-  const { data: photos = [], isLoading } = useQuery<GalleryPhoto[]>({
-    queryKey: ["/api/gallery-photos"],
-  });
+  const photos = galleryPhotos;
 
   return (
     <section
@@ -28,9 +25,6 @@ export default function GallerySection() {
         </motion.h2>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {isLoading && (
-            <div className="col-span-full text-center text-muted-foreground">Loading gallery...</div>
-          )}
           {photos.map((photo, index) => (
             <motion.div
               key={photo.id}

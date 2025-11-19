@@ -4,17 +4,14 @@ import { useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import type { BlogPost } from "@shared/schema";
+import { blogPosts } from "@/data/blogPosts";
 
 export default function BlogSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const [expandedPost, setExpandedPost] = useState<string | null>(null);
 
-  const { data: posts = [], isLoading } = useQuery<BlogPost[]>({
-    queryKey: ["/api/blog-posts"],
-  });
+  const posts = blogPosts;
 
   return (
     <section
@@ -32,9 +29,6 @@ export default function BlogSection() {
         </motion.h2>
 
         <div className="space-y-6">
-          {isLoading && (
-            <div className="text-center text-muted-foreground">Loading posts...</div>
-          )}
           {posts.map((post, index) => (
             <motion.div
               key={post.id}
