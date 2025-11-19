@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "../lib/queryClient";
 import { useForm } from "react-hook-form";
@@ -10,11 +10,18 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Edit, Plus, Save, X } from "lucide-react";
+import { Trash2, Edit, Plus, Save, X, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+const ADMIN_PASSWORD = "harvard2025";
 
 export default function AdminPage() {
   const { toast } = useToast();
+  
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showError, setShowError] = useState(false);
   
   // Blog post editing state
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
@@ -138,6 +145,76 @@ export default function AdminPage() {
     },
   });
 
+  useEffect(() => {
+    const authStatus = sessionStorage.getItem("adminAuthenticated");
+    if (authStatus === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem("adminAuthenticated", "true");
+      setShowError(false);
+    } else {
+      setShowError(true);
+      setPassword("");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem("adminAuthenticated");
+    setPassword("");
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-8">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Lock className="w-6 h-6" />
+              Admin Login
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setShowError(false);
+                  }}
+                  placeholder="Enter admin password"
+                  className={showError ? "border-destructive" : ""}
+                  data-testid="input-admin-password"
+                  autoFocus
+                />
+                {showError && (
+                  <p className="text-sm text-destructive" data-testid="text-login-error">
+                    Incorrect password. Please try again.
+                  </p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" data-testid="button-admin-login">
+                Login
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // Handlers
   const handleEditPost = (post: BlogPost) => {
     setEditingPostId(post.id);
@@ -183,7 +260,16 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto space-y-12">
-        <h1 className="text-4xl font-bold">Content Management Dashboard</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-bold">Content Management Dashboard</h1>
+          <Button 
+            variant="outline" 
+            onClick={handleLogout}
+            data-testid="button-admin-logout"
+          >
+            Logout
+          </Button>
+        </div>
 
         {/* Blog Posts Section */}
         <Card>
