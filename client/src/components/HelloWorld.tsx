@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
 interface HelloWorldProps {
   onReveal: () => void;
@@ -67,12 +68,8 @@ export default function HelloWorld({ onReveal }: HelloWorldProps) {
           className="mt-12 px-8 py-3 border border-white font-mono text-sm text-white hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 mx-auto"
           data-testid="button-reveal-more"
         >
-          More
-          <div className="flex gap-1 items-center">
-            <div className="w-1 h-1 rounded-full bg-white"></div>
-            <div className="w-1 h-1 rounded-full bg-white"></div>
-            <div className="w-1 h-1 rounded-full bg-white"></div>
-          </div>
+          View More
+          <ChevronDown className="w-4 h-4" />
         </motion.button>
       </div>
     </motion.div>
