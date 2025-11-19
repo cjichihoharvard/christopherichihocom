@@ -46,9 +46,9 @@ export default function ContactSection() {
           className="flex flex-wrap gap-4 justify-center"
         >
           {[
-            { icon: Mail, label: "Email Me", testId: "button-email" },
-            { icon: Github, label: "GitHub", testId: "button-github" },
-            { icon: Linkedin, label: "LinkedIn", testId: "button-linkedin" },
+            { icon: Mail, label: "Email Me", testId: "button-email", href: "mailto:christopher_ichiho@gmail.com" },
+            { icon: Github, label: "GitHub", testId: "button-github", href: "#" },
+            { icon: Linkedin, label: "LinkedIn", testId: "button-linkedin", href: "https://www.linkedin.com/in/christopherichiho" },
           ].map((item, index) => (
             <motion.div
               key={item.testId}
@@ -60,10 +60,12 @@ export default function ContactSection() {
                 variant="outline"
                 className="gap-2"
                 data-testid={item.testId}
-                onClick={() => console.log(`${item.label} clicked`)}
+                asChild
               >
-                <item.icon className="w-5 h-5" />
-                {item.label}
+                <a href={item.href} target={item.icon === Github || item.icon === Linkedin ? "_blank" : undefined} rel={item.icon === Github || item.icon === Linkedin ? "noopener noreferrer" : undefined}>
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                </a>
               </Button>
             </motion.div>
           ))}
